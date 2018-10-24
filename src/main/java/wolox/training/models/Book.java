@@ -9,8 +9,7 @@ import javax.persistence.Entity;
 @Entity
 public class Book {
 
-
-    @Column(nullable = true)
+    
     private String Genre;
 
     @Column(nullable = false)
