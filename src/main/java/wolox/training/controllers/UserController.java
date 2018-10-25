@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import wolox.training.Exceptions.UserIdMismatchException;
 import wolox.training.Exceptions.UserIdNotFoundException;
+import wolox.training.models.Book;
 import wolox.training.models.User;
 import wolox.training.repositories.UserRepository;
 
@@ -47,6 +48,16 @@ public class UserController {
         userRepository.findById(id)
                 .orElseThrow(UserIdNotFoundException::new);
         return userRepository.save(User);
+    }
+
+    @PostMapping("/{id}/books")
+    public void addBook(@RequestBody Book book, @PathVariable Long id) {
+        userRepository.findById(id).get().addBook(book);
+    }
+
+    @DeleteMapping("/{id}/books/{idBook}")
+    public void deleteBook(@PathVariable Long id, @PathVariable Long idBook) {
+        userRepository.findById(id).get().removeBook(idBook);
     }
 
 }
