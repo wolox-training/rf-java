@@ -2,7 +2,7 @@ package wolox.training.models;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.*;
 
 @Entity
 public class User {
@@ -20,9 +20,8 @@ public class User {
 
     @Column(nullable = false)
     private LocalDate birthdate;
-
-    @Column(nullable = false)
-    private ArrayList<Book> books;
+    
+    private List<Book> books;
 
     public User(String username, String user, LocalDate birthdate) {
         this.username = username;
@@ -63,11 +62,35 @@ public class User {
         this.birthdate = birthdate;
     }
 
-    public ArrayList<Book> getBooks() {
+    public List<Book> getBooks() {
         return books;
     }
 
-    public void setBooks(ArrayList<Book> books) {
+    public void setBooks(List<Book> books) {
         this.books = books;
     }
+
+    public Book getBook(Long id) {
+        for (Book book: this.books) {
+            if(book.getId().equals(id)){
+                return book;
+            }
+        }
+        return null;
+    }
+
+    public void addBook(Book book) {
+        this.books.add(book);
+    }
+
+    public void removeBook(String id) {
+        Iterator<Book> itr = this.books.iterator();
+        while (itr.hasNext()) {
+            Book book = itr.next();
+            if (book.getId().equals(id)) {
+                this.books.remove(book);
+            }
+        }
+    }
+
 }
