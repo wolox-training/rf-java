@@ -1,5 +1,7 @@
 package wolox.training.models;
 
+import com.google.common.base.Preconditions;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.*;
@@ -36,16 +38,12 @@ public class User {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getUsername() {
         return username;
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.username = Preconditions.checkNotNull(username, "Null in not accepted");
     }
 
     public String getUser() {
@@ -53,7 +51,7 @@ public class User {
     }
 
     public void setUser(String user) {
-        this.user = user;
+        this.user = Preconditions.checkNotNull(user, "Null in not accepted");
     }
 
     public LocalDate getBirthdate() {
@@ -61,7 +59,7 @@ public class User {
     }
 
     public void setBirthdate(LocalDate birthdate) {
-        this.birthdate = birthdate;
+        this.birthdate = Preconditions.checkNotNull(birthdate, "Null in not accepted");
     }
 
     public List<Book> getBooks() {
@@ -69,7 +67,7 @@ public class User {
     }
 
     public void setBooks(List<Book> books) {
-        this.books = books;
+        this.books = Preconditions.checkNotNull(books, "Null in not accepted");
     }
 
     public Book getBook(Long id) {
@@ -82,7 +80,7 @@ public class User {
     }
 
     public void addBook(Book book) {
-        this.books.add(book);
+        this.books.add(Preconditions.checkNotNull(book, "Null in not accepted"));
     }
     
     public void removeBook(Book book) {
