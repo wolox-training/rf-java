@@ -31,5 +31,5 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('com.h2database:h2')
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-	
+	compile('com.google.guava:guava:27.0-jre')
 }
