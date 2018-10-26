@@ -85,14 +85,8 @@ public class User {
         this.books.add(book);
     }
 
-    public void removeBook(String id) {
-        Iterator<Book> itr = this.books.iterator();
-        while (itr.hasNext()) {
-            Book book = itr.next();
-            if (book.getId().equals(id)) {
-                this.books.remove(book);
-            }
-        }
+    public void removeBook(Book book) {
+        this.books.remove(book);
     }
 
 }
