@@ -63,7 +63,7 @@ public class Book {
     }
 
     public void setGenre(String genre) {
-        this.genre = Preconditions.checkNotNull(genre, "Null in not accepted");
+        this.genre = genre;
     }
 
     public String getAuthor() {
