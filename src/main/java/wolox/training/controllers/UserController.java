@@ -45,7 +45,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public User updateUser(@RequestBody User User, @PathVariable Long id) {
-        if (User.getId().equals(id)) {
+        if (!User.getId().equals(id)) {
             throw new UserIdMismatchException("Mismatch ID");
         }
         userRepository.findById(id)
