@@ -27,6 +27,8 @@ public class User {
     @JoinColumn(name="book")
     private List<Book> books;
 
+    public User() {}
+
     public User(String username, String user, LocalDate birthdate) {
         this.username = username;
         this.user = user;
