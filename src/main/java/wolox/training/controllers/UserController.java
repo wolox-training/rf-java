@@ -7,6 +7,7 @@ import wolox.training.Exceptions.UserIdMismatchException;
 import wolox.training.Exceptions.UserIdNotFoundException;
 import wolox.training.models.Book;
 import wolox.training.models.User;
+import wolox.training.repositories.BookRepository;
 import wolox.training.repositories.UserRepository;
 
 @RestController
@@ -15,6 +16,8 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private BookRepository bookRepository;
 
     @GetMapping
     public Iterable findAll() {
@@ -57,7 +60,8 @@ public class UserController {
 
     @DeleteMapping("/{id}/books/{idBook}")
     public void deleteBook(@PathVariable Long id, @PathVariable Long idBook) {
-        userRepository.findById(id).get().removeBook(idBook);
+        Book book = bookRepository.findById(idBook).get();
+        userRepository.findById(id).get().removeBook(book);
     }
 
 }
