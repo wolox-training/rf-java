@@ -3,6 +3,7 @@ package wolox.training.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import wolox.training.Exceptions.BookNotFoundException;
 import wolox.training.Exceptions.UserIdMismatchException;
 import wolox.training.Exceptions.UserIdNotFoundException;
 import wolox.training.models.Book;
@@ -53,15 +54,22 @@ public class UserController {
         return userRepository.save(User);
     }
 
-    @PostMapping("/{id}/books")
-    public void addBook(@RequestBody Book book, @PathVariable Long id) {
-        userRepository.findById(id).get().addBook(book);
+    @PutMapping("/{id}/books/{idBook}")
+    public void addBook(@PathVariable Long id, @PathVariable Long idBook) {
+        Book book = bookRepository.findById(idBook)
+                .orElseThrow(BookNotFoundException::new);
+        userRepository.findById(id)
+                .orElseThrow(UserIdNotFoundException::new)
+                .addBook(book);
     }
 
     @DeleteMapping("/{id}/books/{idBook}")
     public void deleteBook(@PathVariable Long id, @PathVariable Long idBook) {
-        Book book = bookRepository.findById(idBook).get();
-        userRepository.findById(id).get().removeBook(book);
+        Book book = bookRepository.findById(idBook)
+                .orElseThrow(BookNotFoundException::new);
+        userRepository.findById(id)
+                .orElseThrow(UserIdNotFoundException::new)
+                .removeBook(book);
     }
 
 }
