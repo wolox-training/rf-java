@@ -1,5 +1,7 @@
 package wolox.training.models;
 
+import com.google.common.base.Preconditions;
+
 import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,6 +42,8 @@ public class Book {
     @Column(nullable = false)
     private String isbn;
 
+    public Book() {}
+
     public Book(String genre, String author, String image, String title, String subtitle, String publisher, String year, Integer pages, String isbn) {
         this.genre = genre;
         this.author = author;
@@ -52,13 +56,7 @@ public class Book {
         this.isbn = isbn;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getId() { return id; }
 
     public String getGenre() {
         return genre;
@@ -73,7 +71,7 @@ public class Book {
     }
 
     public void setAuthor(String author) {
-        this.author = author;
+        this.author = Preconditions.checkNotNull(author, "Null in not accepted");
     }
 
     public String getImage() {
@@ -81,7 +79,7 @@ public class Book {
     }
 
     public void setImage(String image) {
-        this.image = image;
+        this.image = Preconditions.checkNotNull(image, "Null in not accepted");;
     }
 
     public String getTitle() {
@@ -89,15 +87,13 @@ public class Book {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = Preconditions.checkNotNull(title, "Null in not accepted");
     }
 
-    public String getSubtitle() {
-        return subtitle;
-    }
+    public String getSubtitle() { return subtitle; }
 
     public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
+        this.subtitle = Preconditions.checkNotNull(subtitle, "Null in not accepted");
     }
 
     public String getPublisher() {
@@ -105,7 +101,7 @@ public class Book {
     }
 
     public void setPublisher(String publisher) {
-        this.publisher = publisher;
+        this.publisher = Preconditions.checkNotNull(publisher, "Null in not accepted");
     }
 
     public String getYear() {
@@ -113,7 +109,7 @@ public class Book {
     }
 
     public void setYear(String year) {
-        this.year = year;
+        this.year = Preconditions.checkNotNull(year, "Null in not accepted");
     }
 
     public Integer getPages() {
@@ -121,7 +117,7 @@ public class Book {
     }
 
     public void setPages(Integer pages) {
-        this.pages = pages;
+        this.pages = Preconditions.checkNotNull(pages, "Null in not accepted");
     }
 
     public String getIsbn() {
@@ -129,7 +125,6 @@ public class Book {
     }
 
     public void setIsbn(String isbn) {
-        this.isbn = isbn;
+        this.isbn = Preconditions.checkNotNull(isbn, "Null in not accepted");
     }
-
 }
