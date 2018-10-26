@@ -22,7 +22,7 @@ public class User {
     private LocalDate birthdate;
 
     @OneToMany(cascade=CascadeType.ALL, targetEntity=Book.class)
-    @JoinColumn(name="Book")
+    @JoinColumn(name="book")
     private List<Book> books;
 
     public User(String username, String user, LocalDate birthdate) {
