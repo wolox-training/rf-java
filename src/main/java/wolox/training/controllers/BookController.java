@@ -7,15 +7,17 @@ import wolox.training.models.Book;
 import wolox.training.repositories.BookRepository;
 import wolox.training.Exceptions.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/books")
-public class BookController {
+public class BookController{
 
     @Autowired
     private BookRepository bookRepository;
 
     @GetMapping
-    public Iterable findAll() {
+    public List<Book> findAll() {
         return bookRepository.findAll();
     }
 
