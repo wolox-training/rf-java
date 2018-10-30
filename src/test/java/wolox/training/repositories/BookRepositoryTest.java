@@ -1,5 +1,7 @@
 package wolox.training.repositories;
 
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,22 @@ class BookRepositoryTest {
         entityManager.persistAndFlush(book);
         Book found = bookRepository.getOne(book.getId());
         assertNotNull(found);
+    }
+
+    @Test
+    public void wrongCreateBook() {
+        Book wrongBook = new Book();
+
+        entityManager.persistAndFlush(wrongBook);
+        Book bookNotFound = bookRepository.getOne(wrongBook.getId());
+        assertNull(bookNotFound);
+    }
+
+    @Test
+    public void findByAuthorNotFound() {
+        String badAuthor = "this author not found";
+        Book bookNotFound = bookRepository.findByAuthor(badAuthor);
+        assertNull(bookNotFound);
     }
 
 }
