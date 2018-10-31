@@ -1,19 +1,17 @@
 package wolox.training.repositories;
 
-import org.junit.Assert;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.Assert;
 import wolox.training.models.Book;
-import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
+@RunWith(SpringRunner.class)
 @DataJpaTest
-class BookRepositoryTest {
+public class BookRepositoryTest {
 
     @Autowired
     private BookRepository bookRepository;
@@ -36,7 +34,7 @@ class BookRepositoryTest {
 
         entityManager.persistAndFlush(book);
         Book found = bookRepository.findByAuthor(book.getAuthor());
-        assertEquals(found.getAuthor(), book.getAuthor());
+        Assert.isTrue(book.getAuthor().equals(found.getAuthor()));
     }
 
     @Test
@@ -54,7 +52,7 @@ class BookRepositoryTest {
 
         entityManager.persistAndFlush(book);
         Book found = bookRepository.getOne(book.getId());
-        assertNotNull(found);
+        Assert.notNull(found);
     }
 
     @Test
@@ -63,14 +61,14 @@ class BookRepositoryTest {
 
         entityManager.persistAndFlush(wrongBook);
         Book bookNotFound = bookRepository.getOne(wrongBook.getId());
-        assertNull(bookNotFound);
+        Assert.isNull(bookNotFound);
     }
 
     @Test
     public void findByAuthorNotFound() {
         String badAuthor = "this author not found";
         Book bookNotFound = bookRepository.findByAuthor(badAuthor);
-        assertNull(bookNotFound);
+        Assert.isNull(bookNotFound);
     }
 
 }
