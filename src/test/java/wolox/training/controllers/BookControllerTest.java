@@ -1,5 +1,7 @@
 package wolox.training.controllers;
 
+import org.junit.Before;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import wolox.training.utils.Utils;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,7 +31,6 @@ public class BookControllerTest {
 
     @Autowired
     private MockMvc mvc;
-
     @MockBean
     private BookRepository service;
 
@@ -100,5 +101,47 @@ public class BookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(Utils.asJsonString(book)))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void deleteOne() throws Exception {
+        Book book = new Book();
+        book.setTitle("title test");
+        book.setGenre("genre test");
+        book.setAuthor("author test");
+        book.setImage("image test");
+        book.setIsbn("isbn test");
+        book.setPages(4321);
+        book.setSubtitle("subtitle test");
+        book.setPublisher("publisher test");
+        book.setYear("year test");
+
+        List<Book> allBooks = Arrays.asList(book);
+        given(service.findAll()).willReturn(allBooks);
+
+        mvc.perform(delete("/api/books/{id}", book.getId()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void updateOne() throws Exception {
+        Book book = new Book();
+        book.setTitle("title test");
+        book.setGenre("genre test");
+        book.setAuthor("author test");
+        book.setImage("image test");
+        book.setIsbn("isbn test");
+        book.setPages(4321);
+        book.setSubtitle("subtitle test");
+        book.setPublisher("publisher test");
+        book.setYear("year test");
+
+        List<Book> allBooks = Arrays.asList(book);
+        given(service.findAll()).willReturn(allBooks);
+
+        mvc.perform(put("/api/books/{id}", book.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Utils.asJsonString(book)))
+                .andExpect(status().isOk());
     }
 }
