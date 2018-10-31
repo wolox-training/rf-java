@@ -1,6 +1,6 @@
 package wolox.training.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import wolox.training.utils.Utils;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import wolox.training.models.Book;
@@ -98,15 +98,7 @@ public class BookControllerTest {
 
         mvc.perform(post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(book)))
+                .content(Utils.asJsonString(book)))
                 .andExpect(status().isCreated());
-    }
-
-    public static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }
