@@ -1,7 +1,5 @@
 package wolox.training.controllers;
 
-import org.junit.Before;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import wolox.training.utils.Utils;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,6 +37,7 @@ public class BookControllerTest {
     @MockBean
     private Book aBook;
 
+
     @Test
     public void findAll() throws Exception {
         Book book = new Book();
@@ -64,9 +63,27 @@ public class BookControllerTest {
     }
 
     @Test
+    public void findOne() throws Exception {
+        aBook = new Book();
+        aBook.setTitle("title test");
+        aBook.setGenre("genre test");
+        aBook.setAuthor("author test");
+        aBook.setImage("image test");
+        aBook.setIsbn("isbn test");
+        aBook.setPages(4321);
+        aBook.setSubtitle("subtitle test");
+        aBook.setPublisher("publisher test");
+        aBook.setYear("year test");
+
+        given(service.findById(1l)).willReturn(Optional.of(aBook));
+        mvc.perform(get("/api/books/{id}", 1l))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void findOneNotFound() throws Exception {
         given(service.findById(1l)).willReturn(Optional.of(aBook));
-        mvc.perform(get("/api/books/{id}", 2l))
+        mvc.perform(get("/api/books/{id}", 1l))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -90,20 +107,46 @@ public class BookControllerTest {
     }
 
     @Test
+    public void createWrongBook() throws Exception {
+        Book book = new Book();
+        book.setTitle("title test");
+
+        mvc.perform(post("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(Utils.asJsonString(book)))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
     public void deleteOne() throws Exception {
         given(aBook.getId()).willReturn(1l);
         given(service.findById(aBook.getId())).willReturn(Optional.of(aBook));
         mvc.perform(delete("/api/books/{id}", aBook.getId()))
                 .andExpect(status().isOk());
     }
+    @Test
+    public void deleteOneNotFound() throws Exception {
+        mvc.perform(delete("/api/books/{id}", 2l))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void updateSuccess() throws Exception {
+        String bodyBookJson = "{\n\t\"id\": 1,\n\t\"genre\": \"otro genre\",\n\t\"author\": \"author test\",\n\t\"image\": \"otro test\",\n\t\"title\": \"title test\",\n\t\"subtitle\": \"subtitle test\",\n\t\"publisher\": \"publisher test\",\n\t\"year\":\"year test\",\n\t\"pages\":123,\n\t\"isbn\":\"isbn test\"\n}";
+        given(service.findById(1l)).willReturn(Optional.of(aBook));
+        mvc.perform(put("/api/books/{id}", 1l)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(bodyBookJson))
+                .andExpect(status().isOk());
+    }
 
     @Test
     public void updateBadId() throws Exception {
         given(aBook.getId()).willReturn(1l);
-        String bodyUserJson = "{\"id\":\1\"}";
+        String bodyBookJson = "{\"id\":\1\"}";
         mvc.perform(put("/api/books/{id}", 2l)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(bodyUserJson))
+                .content(bodyBookJson))
                 .andExpect(status().is4xxClientError());
 
     }
