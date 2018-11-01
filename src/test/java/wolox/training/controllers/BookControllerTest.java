@@ -24,6 +24,7 @@ import wolox.training.repositories.BookRepository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(BookController.class)
@@ -31,8 +32,12 @@ public class BookControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
     @MockBean
     private BookRepository service;
+
+    @MockBean
+    private Book aBook;
 
     @Test
     public void findAll() throws Exception {
@@ -50,7 +55,6 @@ public class BookControllerTest {
         List<Book> allBooks = Arrays.asList(book);
 
         given(service.findAll()).willReturn(allBooks);
-
         mvc.perform(get("/api/books")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -60,28 +64,10 @@ public class BookControllerTest {
     }
 
     @Test
-    public void findOne() throws Exception {
-
-        Book book = new Book();
-        book.setTitle("title test");
-        book.setGenre("genre test");
-        book.setAuthor("author test");
-        book.setImage("image test");
-        book.setIsbn("isbn test");
-        book.setPages(4321);
-        book.setSubtitle("subtitle test");
-        book.setPublisher("publisher test");
-        book.setYear("year test");
-
-        List<Book> allBooks = Arrays.asList(book);
-
-        given(service.findAll()).willReturn(allBooks);
-        mvc.perform(get("/api/books/{id}", book.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content()
-                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].title", is(book.getTitle())));
+    public void findOneNotFound() throws Exception {
+        given(service.findById(1l)).willReturn(Optional.of(aBook));
+        mvc.perform(get("/api/books/{id}", 2l))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -105,43 +91,20 @@ public class BookControllerTest {
 
     @Test
     public void deleteOne() throws Exception {
-        Book book = new Book();
-        book.setTitle("title test");
-        book.setGenre("genre test");
-        book.setAuthor("author test");
-        book.setImage("image test");
-        book.setIsbn("isbn test");
-        book.setPages(4321);
-        book.setSubtitle("subtitle test");
-        book.setPublisher("publisher test");
-        book.setYear("year test");
-
-        List<Book> allBooks = Arrays.asList(book);
-        given(service.findAll()).willReturn(allBooks);
-
-        mvc.perform(delete("/api/books/{id}", book.getId()))
+        given(aBook.getId()).willReturn(1l);
+        given(service.findById(aBook.getId())).willReturn(Optional.of(aBook));
+        mvc.perform(delete("/api/books/{id}", aBook.getId()))
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void updateOne() throws Exception {
-        Book book = new Book();
-        book.setTitle("title test");
-        book.setGenre("genre test");
-        book.setAuthor("author test");
-        book.setImage("image test");
-        book.setIsbn("isbn test");
-        book.setPages(4321);
-        book.setSubtitle("subtitle test");
-        book.setPublisher("publisher test");
-        book.setYear("year test");
-
-        List<Book> allBooks = Arrays.asList(book);
-        given(service.findAll()).willReturn(allBooks);
-
-        mvc.perform(put("/api/books/{id}", book.getId())
+    public void updateBadId() throws Exception {
+        given(aBook.getId()).willReturn(1l);
+        String bodyUserJson = "{\"id\":\1\"}";
+        mvc.perform(put("/api/books/{id}", 2l)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(Utils.asJsonString(book)))
-                .andExpect(status().isOk());
+                .content(bodyUserJson))
+                .andExpect(status().is4xxClientError());
+
     }
 }
