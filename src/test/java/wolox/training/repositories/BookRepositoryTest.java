@@ -56,15 +56,6 @@ public class BookRepositoryTest {
     }
 
     @Test
-    public void wrongCreateBook() {
-        Book wrongBook = new Book();
-
-        entityManager.persistAndFlush(wrongBook);
-        Book bookNotFound = bookRepository.getOne(wrongBook.getId());
-        Assert.isNull(bookNotFound);
-    }
-
-    @Test
     public void findByAuthorNotFound() {
         String badAuthor = "this author not found";
         Book bookNotFound = bookRepository.findByAuthor(badAuthor);
