@@ -25,7 +25,7 @@ public class User {
 
     @OneToMany(cascade=CascadeType.ALL, targetEntity=Book.class)
     @JoinColumn(name="book")
-    private List<Book> books;
+    private List<Book> books = new ArrayList<>();
 
     public User() {}
 
@@ -33,7 +33,6 @@ public class User {
         this.username = username;
         this.user = user;
         this.birthdate = birthdate;
-        this.books = new ArrayList<>();
     }
 
     public Long getId() {
@@ -82,7 +81,9 @@ public class User {
     }
 
     public void addBook(Book book) {
-        this.books.add(Preconditions.checkNotNull(book, "Null in not accepted"));
+        if(this.getBook(book.getId()) == null){
+            this.books.add(Preconditions.checkNotNull(book, "Null in not accepted"));
+        }
     }
     
     public void removeBook(Book book) {

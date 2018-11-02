@@ -56,6 +56,14 @@ public class BookRepositoryTest {
     }
 
     @Test
+    public void createWrongBook() {
+        Book book = new Book();
+        bookRepository.save(book);
+        Book found = bookRepository.getOne(book.getId());
+        Assert.isNull(found.getAuthor());
+    }
+
+    @Test
     public void findByAuthorNotFound() {
         String badAuthor = "this author not found";
         Book bookNotFound = bookRepository.findByAuthor(badAuthor);
