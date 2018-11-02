@@ -182,7 +182,7 @@ public class UserControllerTest {
 
         given(serviceUser.findById(1l)).willReturn(Optional.of(aUser)); //mock the user with all books
 
-        mvc.perform(put("/api/Users/1/books/1")) // add again the book with id:1
+        mvc.perform(put("/api/Users/{idUser}/books/1", aUser.getId())) // add again the book with id:1
                 .andExpect(status().is4xxClientError());
     }
 }
