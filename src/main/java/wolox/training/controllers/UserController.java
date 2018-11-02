@@ -3,6 +3,7 @@ package wolox.training.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import wolox.training.Exceptions.BookAlreadyOwnedException;
 import wolox.training.Exceptions.BookNotFoundException;
 import wolox.training.Exceptions.UserIdMismatchException;
 import wolox.training.Exceptions.UserIdNotFoundException;
@@ -58,9 +59,15 @@ public class UserController {
     public void addBook(@PathVariable Long id, @PathVariable Long idBook) {
         Book book = bookRepository.findById(idBook)
                 .orElseThrow(BookNotFoundException::new);
-        userRepository.findById(id)
-                .orElseThrow(UserIdNotFoundException::new)
-                .addBook(book);
+        User user = userRepository.findById(id)
+                .orElseThrow(UserIdNotFoundException::new);
+
+        if (user.getBook(idBook) == null) {
+            user.getBooks().add(book);
+            userRepository.save(user);
+        } else {
+            throw new BookAlreadyOwnedException();
+        }
     }
 
     @DeleteMapping("/{id}/books/{idBook}")
