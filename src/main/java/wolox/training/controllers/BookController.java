@@ -7,7 +7,7 @@ import wolox.training.models.Book;
 import wolox.training.repositories.BookRepository;
 import wolox.training.Exceptions.*;
 import wolox.training.services.OpenLibraryService;
-
+//import wolox.training.services;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,9 +17,6 @@ public class BookController{
 
     @Autowired
     private BookRepository bookRepository;
-
-    @Autowired
-    private OpenLibraryService openLibraryService;
 
     @GetMapping
     public List<Book> findAll() {
@@ -60,14 +57,15 @@ public class BookController{
     public Optional find(@RequestParam("isbn") String isbn) {
         Book book = bookRepository.findByIsbn(isbn);
         if(book == null) {
+            OpenLibraryService openLibraryService = new OpenLibraryService();
             book = openLibraryService.find(isbn);
+
             if(book == null) {
                 throw new BookNotFoundException();
             } else {
                 book.setImage(""); // image is required for save the book
                 bookRepository.save(book);
             }
-
         }
         return Optional.of(book);
     }
