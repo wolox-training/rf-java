@@ -1,5 +1,7 @@
 package wolox.training.controllers;
 
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import wolox.training.services.OpenLibraryService;
 import wolox.training.utils.Utils;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -37,6 +39,8 @@ public class BookControllerTest {
     @MockBean
     private Book aBook;
 
+    @MockBean
+    private OpenLibraryService serviceLibraryService;
 
     @Test
     public void findAll() throws Exception {
@@ -82,7 +86,6 @@ public class BookControllerTest {
 
     @Test
     public void findOneNotFound() throws Exception {
-        given(service.findById(1l)).willReturn(Optional.of(aBook));
         mvc.perform(get("/api/books/{id}", 1l))
                 .andExpect(status().is4xxClientError());
     }
@@ -149,5 +152,35 @@ public class BookControllerTest {
                 .content(bodyBookJson))
                 .andExpect(status().is4xxClientError());
 
+    }
+
+    @Test public void findNotFound() throws Exception {
+        mvc.perform(get("/api/books/search?isbn=sarasa"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test public void findByIsbnFoundOpenLibrary() throws Exception {
+        String isbnInOpenLibrary = "0385472579";
+        mvc.perform(get("/api/books/search?isbn=" + isbnInOpenLibrary))
+                .andExpect(status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(isbnInOpenLibrary));
+    }
+
+    @Test public void findByIsbnExists() throws Exception {
+        aBook = new Book();
+        aBook.setTitle("title test");
+        aBook.setGenre("genre test");
+        aBook.setAuthor("author test");
+        aBook.setImage("image test");
+        aBook.setIsbn("isbn sarasa");
+        aBook.setPages(4321);
+        aBook.setSubtitle("subtitle test");
+        aBook.setPublisher("publisher test");
+        aBook.setYear("year test");
+
+        given(service.findByIsbn(aBook.getIsbn())).willReturn(aBook);
+        mvc.perform(get("/api/books/search?isbn=" + aBook.getIsbn()))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(aBook.getIsbn()));
     }
 }
