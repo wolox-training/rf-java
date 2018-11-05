@@ -1,5 +1,6 @@
 package wolox.training.controllers;
 
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import wolox.training.services.OpenLibraryService;
 import wolox.training.utils.Utils;
 import org.junit.Test;
@@ -155,13 +156,14 @@ public class BookControllerTest {
 
     @Test public void findNotFound() throws Exception {
         mvc.perform(get("/api/books/search?isbn=sarasa"))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isNotFound());
     }
 
     @Test public void findByIsbnFoundOpenLibrary() throws Exception {
         String isbnInOpenLibrary = "0385472579";
         mvc.perform(get("/api/books/search?isbn=" + isbnInOpenLibrary))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(isbnInOpenLibrary));
     }
 
     @Test public void findByIsbnExists() throws Exception {
@@ -178,6 +180,7 @@ public class BookControllerTest {
 
         given(service.findByIsbn(aBook.getIsbn())).willReturn(aBook);
         mvc.perform(get("/api/books/search?isbn=" + aBook.getIsbn()))
-                .andExpect(status().isCreated());
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(aBook.getIsbn()));
     }
 }

@@ -7,7 +7,7 @@ import wolox.training.models.Book;
 import wolox.training.repositories.BookRepository;
 import wolox.training.Exceptions.*;
 import wolox.training.services.OpenLibraryService;
-//import wolox.training.services;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,10 +52,10 @@ public class BookController{
         return bookRepository.save(book);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
     @GetMapping("/search")
-    public Optional find(@RequestParam("isbn") String isbn) {
+    public Optional find(@RequestParam("isbn") String isbn, HttpServletResponse response) {
         Book book = bookRepository.findByIsbn(isbn);
+        response.setStatus(HttpServletResponse.SC_OK);
         if(book == null) {
             OpenLibraryService openLibraryService = new OpenLibraryService();
             book = openLibraryService.find(isbn);
@@ -65,6 +65,7 @@ public class BookController{
             } else {
                 book.setImage(""); // image is required for save the book
                 bookRepository.save(book);
+                response.setStatus(HttpServletResponse.SC_CREATED);
             }
         }
         return Optional.of(book);
