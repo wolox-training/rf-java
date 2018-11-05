@@ -32,4 +32,5 @@ dependencies {
 	compile('com.h2database:h2')
 	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
 	compile('com.google.guava:guava:27.0-jre')
+	compile('org.json:json:20171018')
 }
