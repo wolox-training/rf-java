@@ -34,4 +34,5 @@ dependencies {
 	compile('com.google.guava:guava:27.0-jre')
 	compile('org.json:json:20171018')
 	compile("org.springframework.boot:spring-boot-starter-security")
+	testCompile("org.springframework.security:spring-security-test")
 }

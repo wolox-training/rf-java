@@ -1,6 +1,13 @@
 package wolox.training.controllers;
 
+import org.junit.Before;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import wolox.training.models.User;
+import wolox.training.repositories.UserRepository;
 import wolox.training.services.OpenLibraryService;
 import wolox.training.utils.Utils;
 import org.junit.Test;
@@ -22,6 +29,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import wolox.training.repositories.BookRepository;
 
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +39,6 @@ import java.util.Optional;
 @WebMvcTest(BookController.class)
 public class BookControllerTest {
 
-    @Autowired
     private MockMvc mvc;
 
     @MockBean
@@ -42,6 +50,28 @@ public class BookControllerTest {
     @MockBean
     private OpenLibraryService serviceLibraryService;
 
+    @MockBean
+    private UserRepository userRepository;
+
+    @Autowired
+    private WebApplicationContext context;
+
+    @Before
+    public void setup() {
+        User user = new User();
+        user.setBirthdate(LocalDate.now());
+        user.setUser("test OTRO");
+        user.setUsername("test OTRO");
+        user.setPassword("pass");
+        userRepository.saveAndFlush(user);
+
+        mvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(SecurityMockMvcConfigurers.springSecurity())
+                .build();
+    }
+
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void findAll() throws Exception {
         Book book = new Book();
@@ -66,6 +96,7 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$[0].title", is(book.getTitle())));
     }
 
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void findOne() throws Exception {
         aBook = new Book();
@@ -84,12 +115,14 @@ public class BookControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void findOneNotFound() throws Exception {
         mvc.perform(get("/api/books/{id}", 1l))
                 .andExpect(status().is4xxClientError());
     }
 
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void create() throws Exception {
         Book book = new Book();
@@ -105,10 +138,12 @@ public class BookControllerTest {
 
         mvc.perform(post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(Utils.asJsonString(book)))
+                .content(Utils.asJsonString(book))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isCreated());
     }
 
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void createWrongBook() throws Exception {
         Book book = new Book();
@@ -116,49 +151,62 @@ public class BookControllerTest {
 
         mvc.perform(post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(Utils.asJsonString(book)))
+                .content(Utils.asJsonString(book))
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().is4xxClientError());
     }
 
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void deleteOne() throws Exception {
         given(aBook.getId()).willReturn(1l);
         given(service.findById(aBook.getId())).willReturn(Optional.of(aBook));
-        mvc.perform(delete("/api/books/{id}", aBook.getId()))
+
+        mvc.perform(delete("/api/books/{id}", aBook.getId())
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk());
     }
+
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void deleteOneNotFound() throws Exception {
-        mvc.perform(delete("/api/books/{id}", 2l))
+        mvc.perform(delete("/api/books/{id}", 2l)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isNotFound());
     }
 
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void updateSuccess() throws Exception {
         String bodyBookJson = "{\n\t\"id\": 1,\n\t\"genre\": \"otro genre\",\n\t\"author\": \"author test\",\n\t\"image\": \"otro test\",\n\t\"title\": \"title test\",\n\t\"subtitle\": \"subtitle test\",\n\t\"publisher\": \"publisher test\",\n\t\"year\":\"year test\",\n\t\"pages\":123,\n\t\"isbn\":\"isbn test\"\n}";
         given(service.findById(1l)).willReturn(Optional.of(aBook));
         mvc.perform(put("/api/books/{id}", 1l)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(bodyBookJson))
+                .content(bodyBookJson)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk());
     }
 
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void updateBadId() throws Exception {
         given(aBook.getId()).willReturn(1l);
         String bodyBookJson = "{\"id\":\1\"}";
         mvc.perform(put("/api/books/{id}", 2l)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(bodyBookJson))
+                .content(bodyBookJson)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().is4xxClientError());
 
     }
 
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test public void findNotFound() throws Exception {
         mvc.perform(get("/api/books/search?isbn=sarasa"))
                 .andExpect(status().isNotFound());
     }
 
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test public void findByIsbnFoundOpenLibrary() throws Exception {
         String isbnInOpenLibrary = "0385472579";
         mvc.perform(get("/api/books/search?isbn=" + isbnInOpenLibrary))
@@ -166,6 +214,7 @@ public class BookControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(isbnInOpenLibrary));
     }
 
+    @WithMockUser(username="test OTRO", password = "pass")
     @Test public void findByIsbnExists() throws Exception {
         aBook = new Book();
         aBook.setTitle("title test");
@@ -179,7 +228,8 @@ public class BookControllerTest {
         aBook.setYear("year test");
 
         given(service.findByIsbn(aBook.getIsbn())).willReturn(aBook);
-        mvc.perform(get("/api/books/search?isbn=" + aBook.getIsbn()))
+        mvc.perform(get("/api/books/search?isbn=" + aBook.getIsbn())
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(aBook.getIsbn()));
     }
