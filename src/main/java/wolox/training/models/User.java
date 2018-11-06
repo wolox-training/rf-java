@@ -1,7 +1,7 @@
 package wolox.training.models;
 
 import com.google.common.base.Preconditions;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.*;
@@ -101,11 +101,11 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = new BCryptPasswordEncoder().encode(password);
     }
 
     public boolean match(String username, String password) {
-        return this.username.equals(username) && this.password.equals(password);
+        return this.username.equals(username) && new BCryptPasswordEncoder().matches(password, this.password);
     }
 
     public String getRole() {
