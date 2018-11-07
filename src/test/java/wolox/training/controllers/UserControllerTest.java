@@ -6,6 +6,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import wolox.training.models.Book;
@@ -165,6 +166,24 @@ public class UserControllerTest {
         mvc.perform(put("/api/Users/{id}", 1l)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(bodyUserJson)
+                .with(SecurityMockMvcRequestPostProcessors.csrf()))
+                .andExpect(status().isOk());
+    }
+
+    @WithMockUser(username="test OTRO", password = "pass")
+    @Test
+    public void updateUserPassword() throws Exception {
+        aUser = new User();
+        aUser.setBirthdate(LocalDate.now());
+        aUser.setUser("test OTRO");
+        aUser.setUsername("test OTRO");
+        aUser.setPassword("pass");
+        given(serviceUser.findById(1l)).willReturn(Optional.of(aUser));
+
+        String bodyNewPassword = "\n{\"password\": \"yyy\"}";
+        mvc.perform(put("/api/Users/{id}/password", 1l)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(bodyNewPassword)
                 .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk());
     }
