@@ -231,4 +231,13 @@ public class UserControllerTest {
         mvc.perform(put("/api/Users/{idUser}/books/1", aUser.getId())) // add again the book with id:1
                 .andExpect(status().is4xxClientError());
     }
+
+    @WithMockUser(username="test OTRO", password = "pass")
+    @Test
+    public void currentUser() throws Exception {
+        mvc.perform(get("/api/Users/logueduser"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.username", is("test OTRO")));
+    }
 }
