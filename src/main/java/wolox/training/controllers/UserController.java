@@ -1,5 +1,6 @@
 package wolox.training.controllers;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -46,13 +47,26 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@RequestBody User User, @PathVariable Long id) {
-        if (!User.getId().equals(id)) {
+    public User updateUser(@RequestBody User updated, @PathVariable Long id) {
+        if (!updated.getId().equals(id)) {
             throw new UserIdMismatchException("Mismatch ID");
         }
-        userRepository.findById(id)
-                .orElseThrow(UserIdNotFoundException::new);
-        return userRepository.save(User);
+
+        User user = userRepository.findById(id).orElseThrow(UserIdNotFoundException::new);
+        user.setUser(updated.getUser());
+        user.setUsername(updated.getUsername());
+        user.setBooks(updated.getBooks());
+        user.setBirthdate(updated.getBirthdate());
+
+        return userRepository.save(user);
+    }
+
+    @PutMapping("/{id}/password")
+    public User updateUserPassword(@RequestBody String body, @PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserIdNotFoundException::new);
+        JSONObject jsonBody = new JSONObject(body); // parse the body
+        user.setPassword(jsonBody.get("password").toString()); //get the password
+        return userRepository.save(user);
     }
 
     @PutMapping("/{id}/books/{idBook}")

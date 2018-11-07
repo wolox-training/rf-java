@@ -1,7 +1,7 @@
 package wolox.training.models;
 
 import com.google.common.base.Preconditions;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.*;
@@ -23,6 +23,11 @@ public class User {
     @Column(nullable = false)
     private LocalDate birthdate;
 
+    @Column(nullable = false)
+    private String password;
+
+    private String role = "ROLE_ADMIN";
+
     @OneToMany(cascade=CascadeType.ALL, targetEntity=Book.class)
     @JoinColumn(name="book")
     private List<Book> books = new ArrayList<>();
@@ -33,6 +38,7 @@ public class User {
         this.username = username;
         this.user = user;
         this.birthdate = birthdate;
+        this.role = "ROLE_ADMIN";
     }
 
     public Long getId() {
@@ -88,6 +94,26 @@ public class User {
     
     public void removeBook(Book book) {
         this.books.remove(book);
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = new BCryptPasswordEncoder().encode(password);
+    }
+
+    public boolean match(String username, String password) {
+        return this.username.equals(username) && new BCryptPasswordEncoder().matches(password, this.password);
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
 }

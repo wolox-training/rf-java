@@ -1,5 +1,6 @@
 package wolox.training.repositories;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +27,19 @@ public class UserRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    @Test
-    public void  findByUsernameSuccess() {
-        User user = new User();
+    private User user;
+
+    @Before
+    public void setup(){
+        user = new User();
         user.setBirthdate(LocalDate.now());
         user.setUser("test OTRO");
         user.setUsername("test OTRO");
+        user.setPassword("pass");
+    }
 
+    @Test
+    public void  findByUsernameSuccess() {
         entityManager.persistAndFlush(user);
         User found = userRepository.findByUsername(user.getUsername());
         Assert.isTrue(user.getUsername().equals(found.getUsername()));
@@ -40,11 +47,6 @@ public class UserRepositoryTest {
 
     @Test
     public void  createUserSuccess() {
-        User user = new User();
-        user.setBirthdate(LocalDate.now());
-        user.setUser("test OTRO");
-        user.setUsername("test OTRO");
-
         entityManager.persistAndFlush(user);
         User found = userRepository.getOne(user.getId());
         Assert.notNull(found);
@@ -79,12 +81,6 @@ public class UserRepositoryTest {
         book.setYear("year test");
 
         bookRepository.saveAndFlush(book);  //save the book
-
-        User user = new User();  //create the user
-        user.setBirthdate(LocalDate.now());
-        user.setUser("test OTRO");
-        user.setUsername("test OTRO");
-
         entityManager.persistAndFlush(user); //save the user
 
         Book bookToTest = bookRepository.getOne(book.getId()); // get book from db
@@ -108,12 +104,6 @@ public class UserRepositoryTest {
         book.setYear("year test");
 
         bookRepository.saveAndFlush(book); //save the book
-
-        User user = new User(); //create the user
-        user.setBirthdate(LocalDate.now());
-        user.setUser("test OTRO");
-        user.setUsername("test OTRO");
-
         entityManager.persistAndFlush(user); //save the user
 
         Book bookToTest = bookRepository.getOne(book.getId()); // get book from db
@@ -139,12 +129,6 @@ public class UserRepositoryTest {
         book.setYear("year test");
 
         bookRepository.saveAndFlush(book);  //save the book
-
-        User user = new User();  //create the user
-        user.setBirthdate(LocalDate.now());
-        user.setUser("test OTRO");
-        user.setUsername("test OTRO");
-
         entityManager.persistAndFlush(user); //save the user
 
         Book bookToTest = bookRepository.getOne(book.getId()); // get book from db
