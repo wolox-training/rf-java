@@ -55,6 +55,8 @@ public class BookControllerTest {
 
     @Autowired
     private WebApplicationContext context;
+    
+    private Book mockBook;
 
     @Before
     public void setup() {
@@ -64,6 +66,18 @@ public class BookControllerTest {
         user.setUsername("test OTRO");
         user.setPassword("pass");
         userRepository.saveAndFlush(user);
+
+        mockBook = new Book();
+        mockBook.setTitle("title test");
+        mockBook.setGenre("genre test");
+        mockBook.setAuthor("author test");
+        mockBook.setImage("image test");
+        mockBook.setIsbn("isbn test");
+        mockBook.setPages(4321);
+        mockBook.setSubtitle("subtitle test");
+        mockBook.setPublisher("publisher test");
+        mockBook.setYear("year test");
+        service.saveAndFlush(mockBook);
 
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -232,5 +246,21 @@ public class BookControllerTest {
                 .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.isbn").value(aBook.getIsbn()));
+    }
+
+    @WithMockUser(username="test OTRO", password = "pass")
+    @Test
+    public void findByPublisherAndGenreAndYear() throws Exception {
+        List<Book> allBooks = Arrays.asList(mockBook);
+        String url = "/api/books/complexsearch?publisher=" +
+                    mockBook.getPublisher() + "&genre=" +
+                    mockBook.getGenre()+"&year=" +
+                    mockBook.getYear();
+        given(service.findByPublisherAndGenreAndYear(mockBook.getPublisher(), mockBook.getGenre(), mockBook.getYear())).willReturn(allBooks);
+        mvc.perform(get(url)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].title", is(mockBook.getTitle())));
     }
 }
