@@ -3,6 +3,7 @@ package wolox.training.controllers;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import wolox.training.Exceptions.BookAlreadyOwnedException;
 import wolox.training.Exceptions.BookNotFoundException;
@@ -12,6 +13,8 @@ import wolox.training.models.Book;
 import wolox.training.models.User;
 import wolox.training.repositories.BookRepository;
 import wolox.training.repositories.UserRepository;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/Users")
@@ -91,6 +94,13 @@ public class UserController {
         userRepository.findById(id)
                 .orElseThrow(UserIdNotFoundException::new)
                 .removeBook(book);
+    }
+
+    @RequestMapping(value = "/logueduser", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String currentUser(Principal principal) {
+        JSONObject body = new JSONObject();
+        body.put("username", principal.getName());
+        return body.toString();
     }
 
 }
