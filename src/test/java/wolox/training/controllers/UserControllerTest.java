@@ -37,7 +37,6 @@ import java.util.Optional;
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
 
-    @Autowired
     private MockMvc mvc;
 
     @MockBean
@@ -154,11 +153,18 @@ public class UserControllerTest {
     @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void updateSuccess() throws Exception {
-        String bodyBookJson = "\n{\"id\": 1,\"username\":\"test username\",\"user\":\"test user\",\"birthdate\":\"2015-10-10\"}";
+        String bodyUserJson = "\n{\"id\": 1,\"username\":\"test username\",\"user\":\"test user\",\"birthdate\":\"2015-10-10\"}";
+
+        aUser = new User();
+        aUser.setBirthdate(LocalDate.now());
+        aUser.setUser("test OTRO");
+        aUser.setUsername("test OTRO");
+        aUser.setPassword("pass");
+
         given(serviceUser.findById(1l)).willReturn(Optional.of(aUser));
         mvc.perform(put("/api/Users/{id}", 1l)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(bodyBookJson)
+                .content(bodyUserJson)
                 .with(SecurityMockMvcRequestPostProcessors.csrf()))
                 .andExpect(status().isOk());
     }

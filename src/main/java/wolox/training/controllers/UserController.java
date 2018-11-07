@@ -46,13 +46,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@RequestBody User User, @PathVariable Long id) {
-        if (!User.getId().equals(id)) {
+    public User updateUser(@RequestBody User userUpdated, @PathVariable Long id) {
+        if (!userUpdated.getId().equals(id)) {
             throw new UserIdMismatchException("Mismatch ID");
         }
-        userRepository.findById(id)
-                .orElseThrow(UserIdNotFoundException::new);
-        return userRepository.save(User);
+        User actualUser = userRepository.findById(id).orElseThrow(UserIdNotFoundException::new);
+        userUpdated.setPassword(actualUser.getPassword());
+        return userRepository.save(userUpdated);
     }
 
     @PutMapping("/{id}/books/{idBook}")
