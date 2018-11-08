@@ -48,6 +48,8 @@ public class UserControllerTest {
     @MockBean
     private User aUser;
 
+    private User mockUser;
+
     @MockBean
     private Book aBook;
 
@@ -62,6 +64,13 @@ public class UserControllerTest {
         user.setUsername("test OTRO");
         user.setPassword("pass");
         serviceUser.saveAndFlush(user);
+
+        mockUser = new User();
+        mockUser.setBirthdate(LocalDate.now());
+        mockUser.setUser("mock user");
+        mockUser.setUsername("mock username");
+        mockUser.setPassword("pass");
+        serviceUser.saveAndFlush(mockUser);
 
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -239,5 +248,50 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.username", is("test OTRO")));
+    }
+
+    @WithMockUser(username="test OTRO", password = "pass")
+    @Test
+    public void findByBirthdateBetweenAndUsernameContaining() throws Exception {
+        // check the range two months before and after from now
+        LocalDate fromBirthdate = mockUser.getBirthdate().minusMonths(2);
+        LocalDate toBirthdate = mockUser.getBirthdate().plusMonths(2);
+        String username = mockUser.getUsername();
+        String url = "/api/Users/complexsearch?from=" + fromBirthdate.toString() + "&to=" + toBirthdate.toString() + "&username=" + username;
+
+        List<User> allUsers = Arrays.asList(mockUser);
+        given(serviceUser.findByBirthdateBetweenAndUsernameContainingIgnoreCase(fromBirthdate, toBirthdate, username)).willReturn(allUsers);
+
+        mvc.perform(get(url))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].username", is(username)));
+    }
+
+    @WithMockUser(username="test OTRO", password = "pass")
+    @Test
+    public void findByBirthdateBetweenAndUsernameContainingWrongDate() throws Exception {
+        String fromBirthdate = "sarasa";
+        LocalDate toBirthdate = mockUser.getBirthdate();
+        String username = mockUser.getUsername();
+        String url = "/api/Users/complexsearch?from=" + fromBirthdate + "&to=" + toBirthdate.toString() + "&username=" + username;
+
+        mvc.perform(get(url))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @WithMockUser(username="test OTRO", password = "pass")
+    @Test
+    public void findByBirthdateBetweenAndUsernameContainingEmpty() throws Exception {
+        // check the range two months before and after from now
+        LocalDate fromBirthdate = mockUser.getBirthdate().plusMonths(2);
+        LocalDate toBirthdate = mockUser.getBirthdate().plusMonths(8);
+        String username = mockUser.getUsername();
+        String url = "/api/Users/complexsearch?from=" + fromBirthdate.toString() + "&to=" + toBirthdate.toString() + "&username=" + username;
+
+        mvc.perform(get(url))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().string("[]"));
     }
 }
