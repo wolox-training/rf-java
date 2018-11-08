@@ -1,6 +1,7 @@
 package wolox.training.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import wolox.training.models.Book;
@@ -19,8 +20,13 @@ public class BookController{
     private BookRepository bookRepository;
 
     @GetMapping
-    public List<Book> findAll() {
-        return bookRepository.findAll();
+    public List<Book> findAll(@RequestParam(value = "pagesize", required = false) Integer pageSize,
+                              @RequestParam(value = "page", required = false) Integer pageNumber,
+                              @RequestParam(value = "orderby", required = false) String orderBy,
+                              @RequestParam(value = "sort", required = false) String sort) {
+
+        PageRequest request = Helper.buildPaginationAndSortingRequest(pageSize, pageNumber, orderBy, sort);
+        return bookRepository.findAll(request).getContent();
     }
 
     @GetMapping("/{id}")
