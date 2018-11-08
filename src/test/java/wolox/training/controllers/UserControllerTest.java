@@ -3,6 +3,9 @@ package wolox.training.controllers;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -63,14 +66,14 @@ public class UserControllerTest {
         user.setUser("test OTRO");
         user.setUsername("test OTRO");
         user.setPassword("pass");
-        serviceUser.saveAndFlush(user);
+        serviceUser.save(user);
 
         mockUser = new User();
         mockUser.setBirthdate(LocalDate.now());
         mockUser.setUser("mock user");
         mockUser.setUsername("mock username");
         mockUser.setPassword("pass");
-        serviceUser.saveAndFlush(mockUser);
+        serviceUser.save(mockUser);
 
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -88,8 +91,10 @@ public class UserControllerTest {
         user.setUsername("test OTRO");
 
         List<User> allUsers = Arrays.asList(user);
+        Page<User> p = new PageImpl<>(allUsers);
 
-        given(serviceUser.findAll()).willReturn(allUsers);
+        PageRequest request = Helper.buildPaginationAndSortingRequest(null, null, null, null);
+        given(serviceUser.findAll(request)).willReturn(p);
 
         mvc.perform(get("/api/Users")
                 .contentType(MediaType.APPLICATION_JSON))

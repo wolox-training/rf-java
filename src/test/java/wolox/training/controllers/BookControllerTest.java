@@ -68,7 +68,7 @@ public class BookControllerTest {
         user.setUser("test OTRO");
         user.setUsername("test OTRO");
         user.setPassword("pass");
-        userRepository.saveAndFlush(user);
+        userRepository.save(user);
 
         mockBook = new Book();
         mockBook.setTitle("title test");

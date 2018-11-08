@@ -48,7 +48,7 @@ public class UserRepositoryTest {
     @Test
     public void  createUserSuccess() {
         entityManager.persistAndFlush(user);
-        User found = userRepository.getOne(user.getId());
+        User found = userRepository.findById(user.getId()).get();
         Assert.notNull(found);
     }
 
@@ -56,7 +56,7 @@ public class UserRepositoryTest {
     public void createWrongUser() {
         User user = new User();
         userRepository.save(user);
-        User found = userRepository.getOne(user.getId());
+        User found = userRepository.findById(user.getId()).get();
         Assert.isNull(found.getUsername());
     }
 
@@ -86,7 +86,7 @@ public class UserRepositoryTest {
         Book bookToTest = bookRepository.findById(book.getId()).get(); // get book from db
         user.addBook(book);
         entityManager.persistAndFlush(user); //save the user with book
-        User userWithBook = userRepository.getOne(user.getId()); // get user from db
+        User userWithBook = userRepository.findById(user.getId()).get(); // get user from db
         Assert.isTrue(userWithBook.getBooks().size() == 1);
     }
 
@@ -111,7 +111,7 @@ public class UserRepositoryTest {
         entityManager.persistAndFlush(user); //save the user with book
         user.removeBook(bookToTest); //remove the book
         entityManager.persistAndFlush(user); //save the user with no books
-        User userWithNoBooks = userRepository.getOne(user.getId()); // get user from db
+        User userWithNoBooks = userRepository.findById(user.getId()).get(); // get user from db
         Assert.isTrue(userWithNoBooks.getBooks().size() == 0);
     }
 
@@ -134,7 +134,7 @@ public class UserRepositoryTest {
         Book bookToTest = bookRepository.findById(book.getId()).get(); // get book from db
         user.addBook(bookToTest);
         entityManager.persistAndFlush(user); //save the user with book
-        User userWithBook = userRepository.getOne(user.getId()); // get user from db
+        User userWithBook = userRepository.findById(user.getId()).get(); // get user from db
         userWithBook.addBook(bookToTest); //add two times the same book, the second book must be is ignored
         userWithBook.addBook(bookToTest);
         Assert.isTrue(userWithBook.getBooks().size() == 1);
