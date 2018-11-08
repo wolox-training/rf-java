@@ -1,6 +1,9 @@
 package wolox.training.controllers;
 
 import org.junit.Before;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -77,7 +80,7 @@ public class BookControllerTest {
         mockBook.setSubtitle("subtitle test");
         mockBook.setPublisher("publisher test");
         mockBook.setYear("year test");
-        service.saveAndFlush(mockBook);
+        service.save(mockBook);
 
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -100,8 +103,10 @@ public class BookControllerTest {
         book.setYear("year test");
 
         List<Book> allBooks = Arrays.asList(book);
+        Page<Book> p = new PageImpl<>(allBooks);
 
-        given(service.findAll()).willReturn(allBooks);
+        PageRequest request = Helper.buildPaginationAndSortingRequest(null, null, null, null);
+        given(service.findAll(request)).willReturn(p);
         mvc.perform(get("/api/books")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

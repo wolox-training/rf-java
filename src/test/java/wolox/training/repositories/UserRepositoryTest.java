@@ -80,11 +80,11 @@ public class UserRepositoryTest {
         book.setPublisher("publisher test");
         book.setYear("year test");
 
-        bookRepository.saveAndFlush(book);  //save the book
+        bookRepository.save(book);  //save the book
         entityManager.persistAndFlush(user); //save the user
 
-        Book bookToTest = bookRepository.getOne(book.getId()); // get book from db
-        user.addBook(bookToTest);
+        Book bookToTest = bookRepository.findById(book.getId()).get(); // get book from db
+        user.addBook(book);
         entityManager.persistAndFlush(user); //save the user with book
         User userWithBook = userRepository.getOne(user.getId()); // get user from db
         Assert.isTrue(userWithBook.getBooks().size() == 1);
@@ -103,10 +103,10 @@ public class UserRepositoryTest {
         book.setPublisher("publisher test");
         book.setYear("year test");
 
-        bookRepository.saveAndFlush(book); //save the book
+        bookRepository.save(book); //save the book
         entityManager.persistAndFlush(user); //save the user
 
-        Book bookToTest = bookRepository.getOne(book.getId()); // get book from db
+        Book bookToTest = bookRepository.findById(book.getId()).get(); // get book from db
         user.addBook(bookToTest);
         entityManager.persistAndFlush(user); //save the user with book
         user.removeBook(bookToTest); //remove the book
@@ -128,10 +128,10 @@ public class UserRepositoryTest {
         book.setPublisher("publisher test");
         book.setYear("year test");
 
-        bookRepository.saveAndFlush(book);  //save the book
+        bookRepository.save(book);  //save the book
         entityManager.persistAndFlush(user); //save the user
 
-        Book bookToTest = bookRepository.getOne(book.getId()); // get book from db
+        Book bookToTest = bookRepository.findById(book.getId()).get(); // get book from db
         user.addBook(bookToTest);
         entityManager.persistAndFlush(user); //save the user with book
         User userWithBook = userRepository.getOne(user.getId()); // get user from db

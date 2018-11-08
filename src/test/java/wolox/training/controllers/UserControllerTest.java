@@ -233,7 +233,7 @@ public class UserControllerTest {
         user.setBirthdate(LocalDate.now());
         user.setUser("test OTRO");
         user.setUsername("test OTRO");
-        user.setBooks(serviceBook.findAll()); //add all books to the user
+        user.setBooks(allBooks); //add all books to the user
 
         given(serviceUser.findById(1l)).willReturn(Optional.of(aUser)); //mock the user with all books
 

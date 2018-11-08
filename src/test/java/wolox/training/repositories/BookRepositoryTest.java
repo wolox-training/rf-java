@@ -9,6 +9,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 import wolox.training.models.Book;
 
+import java.util.Optional;
+
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class BookRepositoryTest {
@@ -51,7 +53,7 @@ public class BookRepositoryTest {
         book.setYear("year test");
 
         entityManager.persistAndFlush(book);
-        Book found = bookRepository.getOne(book.getId());
+        Optional found = bookRepository.findById(book.getId());
         Assert.notNull(found);
     }
 
@@ -59,7 +61,7 @@ public class BookRepositoryTest {
     public void createWrongBook() {
         Book book = new Book();
         bookRepository.save(book);
-        Book found = bookRepository.getOne(book.getId());
+        Book found = bookRepository.findById(book.getId()).get();
         Assert.isNull(found.getAuthor());
     }
 
