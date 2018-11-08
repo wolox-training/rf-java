@@ -1,6 +1,7 @@
 package wolox.training.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,7 +28,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        List<User> users = userRepository.findAll();
+        List<User> users = userRepository.findAll(new PageRequest(0, Integer.MAX_VALUE)).getContent(); //get all user
         String name = authentication.getName();
 
         Object credentials = authentication.getCredentials();
