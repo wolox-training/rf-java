@@ -2,19 +2,21 @@ package wolox.training.controllers;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import wolox.training.Exceptions.BookAlreadyOwnedException;
-import wolox.training.Exceptions.BookNotFoundException;
-import wolox.training.Exceptions.UserIdMismatchException;
-import wolox.training.Exceptions.UserIdNotFoundException;
+import wolox.training.Exceptions.*;
 import wolox.training.models.Book;
 import wolox.training.models.User;
 import wolox.training.repositories.BookRepository;
 import wolox.training.repositories.UserRepository;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/Users")
@@ -88,6 +90,21 @@ public class UserController {
         JSONObject body = new JSONObject();
         body.put("username", principal.getName());
         return body.toString();
+    }
+
+    @RequestMapping(value = "/complexsearch", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<User> findByBirthdateBetweenAndUsernameContaining(@RequestParam("from") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate from,
+                                                                  @RequestParam("to") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate to,
+                                                                  @RequestParam("username") String username) {
+
+
+        if(from == null || to == null) { //check corrects format dates
+            throw new BadDateException();
+        }
+
+        List<User> users = userRepository.findByBirthdateBetweenAndUsernameContainingIgnoreCase(from, to, username);
+        return users;
+
     }
 
 }
