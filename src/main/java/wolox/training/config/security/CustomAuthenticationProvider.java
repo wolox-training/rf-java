@@ -1,6 +1,7 @@
 package wolox.training.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,26 +28,23 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        List<User> users = userRepository.findAll();
-        String name = authentication.getName();
-
         Object credentials = authentication.getCredentials();
         if (!(credentials instanceof String)) {
             return null;
         }
+
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username);
+
         String password = credentials.toString();
 
-        Optional<User> userOptional = users.stream()
-                .filter(u -> u.match(name, password))
-                .findFirst();
-
-        if (!userOptional.isPresent()) {
-            throw new BadCredentialsException("Authentication failed for " + name);
+        if (user == null) {
+            throw new BadCredentialsException("Authentication failed for " + username);
         }
 
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        grantedAuthorities.add(new SimpleGrantedAuthority(userOptional.get().getRole()));
-        Authentication auth = new UsernamePasswordAuthenticationToken(name, password, grantedAuthorities);
+        grantedAuthorities.add(new SimpleGrantedAuthority(user.getRole()));
+        Authentication auth = new UsernamePasswordAuthenticationToken(username, password, grantedAuthorities);
         return auth;
     }
 

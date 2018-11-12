@@ -1,6 +1,12 @@
 package wolox.training.controllers;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -16,6 +22,8 @@ import wolox.training.models.Book;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 import static org.hamcrest.core.Is.is;
@@ -31,12 +39,14 @@ import wolox.training.repositories.BookRepository;
 
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(BookController.class)
+@EnableSpringDataWebSupport
 public class BookControllerTest {
 
     private MockMvc mvc;
@@ -55,7 +65,7 @@ public class BookControllerTest {
 
     @Autowired
     private WebApplicationContext context;
-    
+
     private Book mockBook;
 
     @Before
@@ -65,7 +75,7 @@ public class BookControllerTest {
         user.setUser("test OTRO");
         user.setUsername("test OTRO");
         user.setPassword("pass");
-        userRepository.saveAndFlush(user);
+        userRepository.save(user);
 
         mockBook = new Book();
         mockBook.setTitle("title test");
@@ -77,7 +87,7 @@ public class BookControllerTest {
         mockBook.setSubtitle("subtitle test");
         mockBook.setPublisher("publisher test");
         mockBook.setYear("year test");
-        service.saveAndFlush(mockBook);
+        service.save(mockBook);
 
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -101,13 +111,15 @@ public class BookControllerTest {
 
         List<Book> allBooks = Arrays.asList(book);
 
-        given(service.findAll()).willReturn(allBooks);
+        PageRequest pageRequest = new PageRequest(0, 2);
+        given(service.findAll(any(Pageable.class))).willReturn(new PageImpl<>(allBooks, pageRequest, 2));
+
         mvc.perform(get("/api/books")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].title", is(book.getTitle())));
+                .andExpect(jsonPath("$.content[0].title", is(book.getTitle())));
     }
 
     @WithMockUser(username="test OTRO", password = "pass")
@@ -251,16 +263,24 @@ public class BookControllerTest {
     @WithMockUser(username="test OTRO", password = "pass")
     @Test
     public void findByPublisherAndGenreAndYear() throws Exception {
-        List<Book> allBooks = Arrays.asList(mockBook);
-        String url = "/api/books/complexsearch?publisher=" +
-                    mockBook.getPublisher() + "&genre=" +
-                    mockBook.getGenre()+"&year=" +
-                    mockBook.getYear();
-        given(service.findByPublisherAndGenreAndYear(mockBook.getPublisher(), mockBook.getGenre(), mockBook.getYear())).willReturn(allBooks);
-        mvc.perform(get(url)
-                .contentType(MediaType.APPLICATION_JSON))
+        Book book = new Book();
+        book.setTitle("titletest");
+        book.setGenre("testgenre");
+        book.setAuthor("authortest");
+        book.setImage("imagetest");
+        book.setIsbn("isbntest");
+        book.setPages(4321);
+        book.setSubtitle("subtitletest");
+        book.setPublisher("publishertest");
+        book.setYear("year");
+
+        List<Book> allBooks = Arrays.asList(book);
+        PageRequest pageRequest = new PageRequest(0,20);
+
+        String url = "/api/books/complexsearch?publisher="+book.getPublisher()+"&genre="+book.getGenre()+"&year="+book.getYear();
+        given(service.findByPublisherAndGenreAndYear(book.getPublisher(), book.getGenre(), book.getYear(), pageRequest)).willReturn(new PageImpl<>(allBooks));
+        mvc.perform(get(url))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].title", is(mockBook.getTitle())));
+                .andExpect(jsonPath("$.content[0].title", is(book.getTitle())));
     }
 }

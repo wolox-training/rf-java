@@ -2,6 +2,8 @@ package wolox.training.controllers;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,9 +16,6 @@ import wolox.training.repositories.UserRepository;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/Users")
@@ -28,8 +27,8 @@ public class UserController {
     private BookRepository bookRepository;
 
     @GetMapping
-    public Iterable findAll() {
-        return userRepository.findAll();
+    public Page<User> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
     @GetMapping("/{id}")
@@ -40,8 +39,8 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User create(@RequestBody User User) {
-        return userRepository.save(User);
+    public User create(@RequestBody User user) {
+        return userRepository.save(user);
     }
 
     @DeleteMapping("/{id}")
@@ -106,18 +105,17 @@ public class UserController {
     }
 
     @RequestMapping(value = "/complexsearch", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<User> findByBirthdateBetweenAndUsernameContaining(@RequestParam("from") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate from,
+    public Page<User> findByBirthdateBetweenAndUsernameContaining(@RequestParam("from") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate from,
                                                                   @RequestParam("to") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate to,
-                                                                  @RequestParam("username") String username) {
+                                                                  @RequestParam(name = "username", defaultValue = "") String username,
+                                                                  Pageable pageable) {
 
 
         if(from == null || to == null) { //check corrects format dates
             throw new BadDateException();
         }
 
-        List<User> users = userRepository.findByBirthdateBetweenAndUsernameContainingIgnoreCase(from, to, username);
-        return users;
-
+        return userRepository.findByBirthdateBetweenAndUsernameContainingIgnoreCase(from, to, username, pageable);
     }
 
 }

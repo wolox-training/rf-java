@@ -1,6 +1,8 @@
 package wolox.training.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import wolox.training.models.Book;
@@ -8,7 +10,6 @@ import wolox.training.repositories.BookRepository;
 import wolox.training.Exceptions.*;
 import wolox.training.services.OpenLibraryService;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -19,8 +20,8 @@ public class BookController{
     private BookRepository bookRepository;
 
     @GetMapping
-    public List<Book> findAll() {
-        return bookRepository.findAll();
+    public Page<Book> findAll(Pageable pageable) {
+        return bookRepository.findAll(pageable);
     }
 
     @GetMapping("/{id}")
@@ -72,11 +73,11 @@ public class BookController{
     }
 
     @GetMapping("/complexsearch")
-    public List<Book> findByPublisherAndGenreAndYear(@RequestParam("publisher") String publisher,
+    public Page<Book> findByPublisherAndGenreAndYear(@RequestParam("publisher") String publisher,
                                                      @RequestParam("genre") String genre,
-                                                     @RequestParam("year") String year) {
+                                                     @RequestParam("year") String year, Pageable pageable) {
 
-        List<Book> books = bookRepository.findByPublisherAndGenreAndYear(publisher, genre, year);
+        Page<Book> books = bookRepository.findByPublisherAndGenreAndYear(publisher, genre, year, pageable);
 
         return books;
     }

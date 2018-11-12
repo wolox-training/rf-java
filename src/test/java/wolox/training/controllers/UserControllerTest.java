@@ -3,6 +3,10 @@ package wolox.training.controllers;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -14,6 +18,8 @@ import wolox.training.models.User;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import static org.hamcrest.core.Is.is;
@@ -30,12 +36,14 @@ import wolox.training.repositories.UserRepository;
 import wolox.training.utils.Utils;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(UserController.class)
+@EnableSpringDataWebSupport
 public class UserControllerTest {
 
     private MockMvc mvc;
@@ -64,14 +72,14 @@ public class UserControllerTest {
         user.setUser("test OTRO");
         user.setUsername("test OTRO");
         user.setPassword("pass");
-        serviceUser.saveAndFlush(user);
+        serviceUser.save(user);
 
         mockUser = new User();
         mockUser.setBirthdate(LocalDate.now());
         mockUser.setUser("mock user");
         mockUser.setUsername("mock username");
         mockUser.setPassword("pass");
-        serviceUser.saveAndFlush(mockUser);
+        serviceUser.save(mockUser);
 
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -90,14 +98,15 @@ public class UserControllerTest {
 
         List<User> allUsers = Arrays.asList(user);
 
-        given(serviceUser.findAll()).willReturn(allUsers);
+        PageRequest pageRequest = new PageRequest(0, 2);
+        given(serviceUser.findAll(any(Pageable.class))).willReturn(new PageImpl<>(allUsers, pageRequest, 2));
 
         mvc.perform(get("/api/Users")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].user", is("test OTRO")));
+                .andExpect(jsonPath("$.content[0].user", is("test OTRO")));
     }
 
     @WithMockUser(username="test OTRO", password = "pass")
@@ -252,7 +261,7 @@ public class UserControllerTest {
         user.setBirthdate(LocalDate.now());
         user.setUser("test OTRO");
         user.setUsername("test OTRO");
-        user.setBooks(serviceBook.findAll()); //add all books to the user
+        user.setBooks(allBooks); //add all books to the user
 
         given(serviceUser.findById(1l)).willReturn(Optional.of(aUser)); //mock the user with all books
 
@@ -279,12 +288,13 @@ public class UserControllerTest {
         String url = "/api/Users/complexsearch?from=" + fromBirthdate.toString() + "&to=" + toBirthdate.toString() + "&username=" + username;
 
         List<User> allUsers = Arrays.asList(mockUser);
-        given(serviceUser.findByBirthdateBetweenAndUsernameContainingIgnoreCase(fromBirthdate, toBirthdate, username)).willReturn(allUsers);
+        PageRequest pageRequest = new PageRequest(0, 20);
+
+        given(serviceUser.findByBirthdateBetweenAndUsernameContainingIgnoreCase(fromBirthdate, toBirthdate, username, pageRequest)).willReturn(new PageImpl<>(allUsers, pageRequest, 20));
 
         mvc.perform(get(url))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].username", is(username)));
+                .andExpect(jsonPath("$.content[0].username", is(username)));
     }
 
     @WithMockUser(username="test OTRO", password = "pass")
@@ -303,14 +313,17 @@ public class UserControllerTest {
     @Test
     public void findByBirthdateBetweenAndUsernameContainingEmpty() throws Exception {
         // check the range two months before and after from now
-        LocalDate fromBirthdate = mockUser.getBirthdate().plusMonths(2);
-        LocalDate toBirthdate = mockUser.getBirthdate().plusMonths(8);
+        LocalDate fromBirthdate = mockUser.getBirthdate().plusMonths(4);
+        LocalDate toBirthdate = mockUser.getBirthdate().plusMonths(4);
         String username = mockUser.getUsername();
         String url = "/api/Users/complexsearch?from=" + fromBirthdate.toString() + "&to=" + toBirthdate.toString() + "&username=" + username;
 
+        PageRequest pageRequest = new PageRequest(0, 20);
+
+        given(serviceUser.findByBirthdateBetweenAndUsernameContainingIgnoreCase(fromBirthdate, toBirthdate, username, pageRequest)).willReturn(new PageImpl<>(new ArrayList<>()));
+
         mvc.perform(get(url))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string("[]"));
+                .andExpect(jsonPath("$.content.length()").value(0));
     }
 }
