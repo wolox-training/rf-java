@@ -3,7 +3,6 @@ package wolox.training.controllers;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +35,7 @@ import wolox.training.repositories.UserRepository;
 import wolox.training.utils.Utils;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -269,9 +269,9 @@ public class UserControllerTest {
         String url = "/api/Users/complexsearch?from=" + fromBirthdate.toString() + "&to=" + toBirthdate.toString() + "&username=" + username;
 
         List<User> allUsers = Arrays.asList(mockUser);
-        PageRequest pageRequest = new PageRequest(0,2);
+        PageRequest pageRequest = new PageRequest(0, 20);
 
-        given(serviceUser.findByBirthdateBetweenAndUsernameContainingIgnoreCase(fromBirthdate, toBirthdate, username, pageRequest)).willReturn(new PageImpl<>(allUsers, pageRequest, 2));
+        given(serviceUser.findByBirthdateBetweenAndUsernameContainingIgnoreCase(fromBirthdate, toBirthdate, username, pageRequest)).willReturn(new PageImpl<>(allUsers, pageRequest, 20));
 
         mvc.perform(get(url))
                 .andExpect(status().isOk())
@@ -294,19 +294,17 @@ public class UserControllerTest {
     @Test
     public void findByBirthdateBetweenAndUsernameContainingEmpty() throws Exception {
         // check the range two months before and after from now
-        LocalDate fromBirthdate = mockUser.getBirthdate().plusMonths(2);
-        LocalDate toBirthdate = mockUser.getBirthdate().plusMonths(8);
+        LocalDate fromBirthdate = mockUser.getBirthdate().plusMonths(4);
+        LocalDate toBirthdate = mockUser.getBirthdate().plusMonths(4);
         String username = mockUser.getUsername();
-
-        List<User> allUsers = Arrays.asList(mockUser);
-        PageRequest pageRequest = new PageRequest(0,2);
-
-        given(serviceUser.findByBirthdateBetweenAndUsernameContainingIgnoreCase(fromBirthdate, toBirthdate, username, pageRequest)).willReturn(new PageImpl<>(allUsers, pageRequest, 2));
-
         String url = "/api/Users/complexsearch?from=" + fromBirthdate.toString() + "&to=" + toBirthdate.toString() + "&username=" + username;
+
+        PageRequest pageRequest = new PageRequest(0, 20);
+
+        given(serviceUser.findByBirthdateBetweenAndUsernameContainingIgnoreCase(fromBirthdate, toBirthdate, username, pageRequest)).willReturn(new PageImpl<>(new ArrayList<>()));
 
         mvc.perform(get(url))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("[]"));
+                .andExpect(jsonPath("$.content.length()").value(0));
     }
 }

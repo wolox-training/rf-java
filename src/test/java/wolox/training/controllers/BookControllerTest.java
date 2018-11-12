@@ -275,10 +275,10 @@ public class BookControllerTest {
         book.setYear("year");
 
         List<Book> allBooks = Arrays.asList(book);
-        PageRequest pageRequest = new PageRequest(0,2);
+        PageRequest pageRequest = new PageRequest(0,20);
 
         String url = "/api/books/complexsearch?publisher="+book.getPublisher()+"&genre="+book.getGenre()+"&year="+book.getYear();
-        given(service.findByPublisherAndGenreAndYear(book.getPublisher(), book.getGenre(), book.getYear(), any(Pageable.class))).willReturn(new PageImpl<>(allBooks, pageRequest, 2));
+        given(service.findByPublisherAndGenreAndYear(book.getPublisher(), book.getGenre(), book.getYear(), pageRequest)).willReturn(new PageImpl<>(allBooks));
         mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].title", is(book.getTitle())));

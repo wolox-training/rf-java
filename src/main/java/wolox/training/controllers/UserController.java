@@ -3,7 +3,6 @@ package wolox.training.controllers;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,6 @@ import wolox.training.repositories.UserRepository;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/Users")
@@ -41,8 +39,8 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User create(@RequestBody User User) {
-        return userRepository.save(User);
+    public User create(@RequestBody User user) {
+        return userRepository.save(user);
     }
 
     @DeleteMapping("/{id}")
@@ -96,16 +94,15 @@ public class UserController {
     @RequestMapping(value = "/complexsearch", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public Page<User> findByBirthdateBetweenAndUsernameContaining(@RequestParam("from") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate from,
                                                                   @RequestParam("to") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate to,
-                                                                  @RequestParam("username") String username, Pageable pageable) {
+                                                                  @RequestParam(name = "username", defaultValue = "") String username,
+                                                                  Pageable pageable) {
 
 
         if(from == null || to == null) { //check corrects format dates
             throw new BadDateException();
         }
 
-        Page<User> users = userRepository.findByBirthdateBetweenAndUsernameContainingIgnoreCase(from, to, username, pageable);
-        return users;
-
+        return userRepository.findByBirthdateBetweenAndUsernameContainingIgnoreCase(from, to, username, pageable);
     }
 
 }
