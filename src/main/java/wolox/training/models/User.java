@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Entity
+@Table(name="users")
 public class User {
 
     @Id
@@ -18,9 +19,6 @@ public class User {
     private String username;
 
     @Column(nullable = false)
-    private  String user;
-
-    @Column(nullable = false)
     private LocalDate birthdate;
 
     @Column(nullable = false)
@@ -29,20 +27,12 @@ public class User {
     private String role = "ROLE_ADMIN";
 
     @OneToMany(cascade=CascadeType.ALL, targetEntity=Book.class)
-    @JoinColumn(name="book")
     private List<Book> books = new ArrayList<>();
 
     public User() {}
 
-    public User(String username, String user, LocalDate birthdate) {
-        this.username = username;
-        this.user = user;
-        this.birthdate = birthdate;
-        this.role = "ROLE_ADMIN";
-    }
-
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public String getUsername() {
@@ -53,16 +43,9 @@ public class User {
         this.username = Preconditions.checkNotNull(username, "Null in not accepted");
     }
 
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = Preconditions.checkNotNull(user, "Null in not accepted");
-    }
 
     public LocalDate getBirthdate() {
-        return birthdate;
+        return this.birthdate;
     }
 
     public void setBirthdate(LocalDate birthdate) {
@@ -70,7 +53,7 @@ public class User {
     }
 
     public List<Book> getBooks() {
-        return books;
+        return this.books;
     }
 
     public void setBooks(List<Book> books) {
@@ -104,12 +87,8 @@ public class User {
         this.password = new BCryptPasswordEncoder().encode(password);
     }
 
-    public boolean match(String username, String password) {
-        return this.username.equals(username) && new BCryptPasswordEncoder().matches(password, this.password);
-    }
-
     public String getRole() {
-        return role;
+        return this.role;
     }
 
     public void setRole(String role) {

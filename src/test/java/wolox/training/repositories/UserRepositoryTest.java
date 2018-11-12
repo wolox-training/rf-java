@@ -33,7 +33,6 @@ public class UserRepositoryTest {
     public void setup(){
         user = new User();
         user.setBirthdate(LocalDate.now());
-        user.setUser("test OTRO");
         user.setUsername("test OTRO");
         user.setPassword("pass");
     }
