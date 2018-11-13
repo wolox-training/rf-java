@@ -73,9 +73,10 @@ public class BookController{
     }
 
     @GetMapping("/complexsearch")
-    public Page<Book> findByPublisherAndGenreAndYear(@RequestParam("publisher") String publisher,
-                                                     @RequestParam("genre") String genre,
-                                                     @RequestParam("year") String year, Pageable pageable) {
+    public Page<Book> findByPublisherAndGenreAndYear(@RequestParam(value="publisher", defaultValue = "") String publisher,
+                                                     @RequestParam(value="genre", defaultValue = "") String genre,
+                                                     @RequestParam(value="year", defaultValue = "") String year,
+                                                     Pageable pageable) {
 
         Page<Book> books = bookRepository.findByPublisherAndGenreAndYear(publisher, genre, year, pageable);
 
