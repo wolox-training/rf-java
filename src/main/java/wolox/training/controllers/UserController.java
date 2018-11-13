@@ -92,15 +92,11 @@ public class UserController {
     }
 
     @RequestMapping(value = "/complexsearch", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<User> findByBirthdateBetweenAndUsernameContaining(@RequestParam("from") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate from,
-                                                                  @RequestParam("to") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate to,
+        public Page<User> findByBirthdateBetweenAndUsernameContaining(@RequestParam(name = "from" , required = false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate from,
+                                                                  @RequestParam(name = "to" , required = false) @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate to,
                                                                   @RequestParam(name = "username", defaultValue = "") String username,
                                                                   Pageable pageable) {
 
-
-        if(from == null || to == null) { //check corrects format dates
-            throw new BadDateException();
-        }
 
         return userRepository.findByBirthdateBetweenAndUsernameContainingIgnoreCase(from, to, username, pageable);
     }
