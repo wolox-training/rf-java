@@ -69,14 +69,12 @@ public class UserControllerTest {
     public void setup() {
         User user = new User();
         user.setBirthdate(LocalDate.now());
-        user.setUser("test OTRO");
         user.setUsername("test OTRO");
         user.setPassword("pass");
         serviceUser.save(user);
 
         mockUser = new User();
         mockUser.setBirthdate(LocalDate.now());
-        mockUser.setUser("mock user");
         mockUser.setUsername("mock username");
         mockUser.setPassword("pass");
         serviceUser.save(mockUser);
@@ -93,7 +91,6 @@ public class UserControllerTest {
 
         User user = new User();
         user.setBirthdate(LocalDate.now());
-        user.setUser("test OTRO");
         user.setUsername("test OTRO");
 
         List<User> allUsers = Arrays.asList(user);
@@ -106,7 +103,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.content[0].user", is("test OTRO")));
+                .andExpect(jsonPath("$.content[0].username").value(user.getUsername()));
     }
 
     @WithMockUser(username="test OTRO", password = "pass")
@@ -114,7 +111,6 @@ public class UserControllerTest {
     public void findOne() throws Exception {
         aUser = new User();
         aUser.setBirthdate(LocalDate.now());
-        aUser.setUser("test OTRO");
         aUser.setUsername("test OTRO");
         given(serviceUser.findById(1l)).willReturn(Optional.of(aUser));
         mvc.perform(get("/api/Users/{id}", 1l))
@@ -176,7 +172,6 @@ public class UserControllerTest {
 
         aUser = new User();
         aUser.setBirthdate(LocalDate.now());
-        aUser.setUser("test OTRO");
         aUser.setUsername("test OTRO");
         aUser.setPassword("pass");
 
@@ -259,7 +254,6 @@ public class UserControllerTest {
 
         User user = new User();
         user.setBirthdate(LocalDate.now());
-        user.setUser("test OTRO");
         user.setUsername("test OTRO");
         user.setBooks(allBooks); //add all books to the user
 

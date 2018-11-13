@@ -72,7 +72,6 @@ public class BookControllerTest {
     public void setup() {
         User user = new User();
         user.setBirthdate(LocalDate.now());
-        user.setUser("test OTRO");
         user.setUsername("test OTRO");
         user.setPassword("pass");
         userRepository.save(user);
